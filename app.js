@@ -75,6 +75,39 @@ const products = [
 
 function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
 
+function logout() {
+  localStorage.removeItem('user');
+  updateUI();
+  alert('Logged out successfully');
+}
+
+function updateUI() {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const loginNav = document.getElementById('login-nav');
+  const userInfo = document.getElementById('user-info');
+  const logoutBtn = document.getElementById('logout-btn');
+  const adminSection = document.getElementById('admin');
+  
+  if (user.loggedIn) {
+    loginNav.style.display = 'none';
+    userInfo.style.display = 'inline';
+    userInfo.textContent = `Welcome, ${user.type}${user.email ? ` (${user.email})` : ''}`;
+    logoutBtn.style.display = 'inline';
+    
+    // Show admin panel only for admin users
+    if (user.type === 'admin') {
+      adminSection.style.display = 'block';
+    } else {
+      adminSection.style.display = 'none';
+    }
+  } else {
+    loginNav.style.display = 'inline';
+    userInfo.style.display = 'none';
+    logoutBtn.style.display = 'none';
+    adminSection.style.display = 'none';
+  }
+}
+
 function renderProducts(){
  document.getElementById('product-grid').innerHTML=products.map(p=>`
    <div class="card">
@@ -109,6 +142,13 @@ function getCart(){return JSON.parse(localStorage.getItem('cart')||'[]')}
 function saveCart(c){localStorage.setItem('cart',JSON.stringify(c))}
 
 function addToCart(id){
+ const user = JSON.parse(localStorage.getItem('user') || '{}');
+ if (!user.loggedIn) {
+   alert('Please login first to add items to cart');
+   window.location.href = 'login.html';
+   return;
+ }
+ 
  const p=products.find(x=>x.id===id);
  const c=getCart();
  const ex=c.find(i=>i.id===id);
@@ -137,7 +177,15 @@ function renderCart(){
 
 function removeItem(i){const c=getCart();c.splice(i,1);saveCart(c);renderCart()}
 
-function goToCheckout(){document.getElementById('checkout').style.display='block';renderOrderSummary()}
+function goToCheckout(){
+ const user = JSON.parse(localStorage.getItem('user') || '{}');
+ if (!user.loggedIn || user.type !== 'customer') {
+   alert('Please login as customer to checkout');
+   window.location.href = 'login.html';
+   return;
+ }
+ document.getElementById('checkout').style.display='block';renderOrderSummary()
+}
 
 function renderOrderSummary(){
  const c=getCart();
@@ -147,6 +195,12 @@ function renderOrderSummary(){
 }
 
 function simulatePayment(){
+ const user = JSON.parse(localStorage.getItem('user') || '{}');
+ if (user.type !== 'customer') {
+   alert('Please login as customer to make payment');
+   return;
+ }
+ 
  const f=document.getElementById('checkout-form');
  if(!f.checkValidity()) return alert('Fill all fields');
  const c=getCart(); if(!c.length) return alert('Cart empty');
@@ -163,12 +217,130 @@ function renderOrders(){
  const o=JSON.parse(localStorage.getItem('orders')||'[]');
  const el=document.getElementById('orders-list');
  if(!o.length){el.innerHTML='No orders yet';return}
- el.innerHTML=o.map(x=>`<div style='padding:8px;background:#faf6f3;border-radius:8px;margin-bottom:8px'><div style='font-weight:700'>Order ${x.id}</div><div>Name: ${x.name}</div><div>Items: ${x.items.map(i=>i.name+' x'+i.qty).join(', ')}</div></div>`).join('');
+ el.innerHTML=o.map((x,idx)=>`
+   <div style='padding:12px;background:#faf6f3;border-radius:8px;margin-bottom:12px' id="order-${x.id}">
+     <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px'>
+       <div style='font-weight:700'>Order #${x.id}</div>
+       <div style='display:flex;gap:8px'>
+         <button class="pill" onclick="editOrder(${idx})" style="font-size:12px;padding:4px 8px">Edit</button>
+         <button class="pill" onclick="deleteOrder(${idx})" style="font-size:12px;padding:4px 8px;background:#dc3545;color:white;border-color:#dc3545">Delete</button>
+       </div>
+     </div>
+     <div><strong>Name:</strong> ${x.name}</div>
+     <div><strong>Phone:</strong> ${x.phone}</div>
+     <div><strong>Address:</strong> ${x.address}</div>
+     <div style='margin-top:8px'><strong>Items:</strong> ${x.items.map(i=>i.name+' x'+i.qty).join(', ')}</div>
+     <div style='margin-top:4px'><strong>Total:</strong> RM ${calculateOrderTotal(x.items).toFixed(2)}</div>
+   </div>
+ `).join('');
+}
+
+function calculateOrderTotal(items) {
+  return items.reduce((total, item) => total + (item.price * item.qty), 0);
+}
+
+function deleteOrder(index) {
+  if (!confirm('Are you sure you want to delete this order?')) {
+    return;
+  }
+  
+  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+  orders.splice(index, 1);
+  localStorage.setItem('orders', JSON.stringify(orders));
+  renderOrders();
+  alert('Order deleted successfully');
+}
+
+function editOrder(index) {
+  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+  const order = orders[index];
+  
+  // Create edit form
+  const orderElement = document.getElementById(`order-${order.id}`);
+  orderElement.innerHTML = `
+    <div style='margin-bottom:12px;font-weight:700'>Edit Order #${order.id}</div>
+    <form id="edit-order-form-${order.id}">
+      <div style='display:grid;gap:8px;margin-bottom:12px'>
+        <div>
+          <label style='font-size:12px;font-weight:600'>Customer Name</label>
+          <input name="name" value="${order.name}" required style="padding:6px;font-size:14px">
+        </div>
+        <div>
+          <label style='font-size:12px;font-weight:600'>Phone</label>
+          <input name="phone" value="${order.phone}" required style="padding:6px;font-size:14px">
+        </div>
+        <div>
+          <label style='font-size:12px;font-weight:600'>Address</label>
+          <textarea name="address" rows="2" required style="padding:6px;font-size:14px">${order.address}</textarea>
+        </div>
+      </div>
+      <div style='margin-bottom:12px'>
+        <div style='font-weight:600;margin-bottom:8px;font-size:14px'>Order Items:</div>
+        ${order.items.map((item, itemIndex) => `
+          <div style='display:flex;gap:8px;align-items:center;margin-bottom:6px;padding:6px;background:white;border-radius:6px'>
+            <div style='flex:1'>
+              <div style='font-weight:600'>${item.name}</div>
+              <div style='font-size:12px;color:#6b5f59'>RM ${item.price} each</div>
+            </div>
+            <div>
+              <label style='font-size:12px'>Qty:</label>
+              <input type="number" min="1" value="${item.qty}" name="item-qty-${itemIndex}" style="width:60px;padding:4px;font-size:14px">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style='display:flex;gap:8px;justify-content:flex-end'>
+        <button type="button" class="pill" onclick="cancelEdit(${order.id})" style="padding:6px 12px">Cancel</button>
+        <button type="submit" class="pill" style="padding:6px 12px;background:#28a745;color:white;border-color:#28a745">Save</button>
+      </div>
+    </form>
+  `;
+  
+  // Add form submit handler
+  document.getElementById(`edit-order-form-${order.id}`).addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveOrderEdit(index, order.id);
+  });
+}
+
+function cancelEdit(orderId) {
+  renderOrders();
+}
+
+function saveOrderEdit(index, orderId) {
+  const form = document.getElementById(`edit-order-form-${orderId}`);
+  const formData = new FormData(form);
+  
+  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+  const order = orders[index];
+  
+  // Update order details
+  order.name = formData.get('name');
+  order.phone = formData.get('phone');
+  order.address = formData.get('address');
+  
+  // Update item quantities
+  order.items.forEach((item, itemIndex) => {
+    const newQty = parseInt(formData.get(`item-qty-${itemIndex}`));
+    if (newQty > 0) {
+      item.qty = newQty;
+    }
+  });
+  
+  localStorage.setItem('orders', JSON.stringify(orders));
+  renderOrders();
+  alert('Order updated successfully');
 }
 
 document.addEventListener('submit',e=>{
  if(e.target.id==='admin-add-form'){
    e.preventDefault();
+   const user = JSON.parse(localStorage.getItem('user') || '{}');
+   if (user.type !== 'admin') {
+     alert('Admin access required');
+     return;
+   }
+   
    const f=e.target;
    const obj={
      id:products.length+1,
@@ -185,6 +357,9 @@ document.addEventListener('submit',e=>{
  }
 })
 
+// Initialize
+document.getElementById('logout-btn').addEventListener('click', logout);
+updateUI();
 renderProducts();
 renderCart();
 renderOrders();
