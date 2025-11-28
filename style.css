@@ -34,7 +34,7 @@ nav a:hover{background:#efeae7}
 .admin-side{width:220px;background:white;padding:12px;border-radius:10px}
 .admin-main{flex:1}
 
-input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #ded6cf;margin-top:8px}
+input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ded6cf;margin-top:8px}
 label{font-weight:600;color:#3f342f}
 
 footer{margin-top:28px;padding:20px;text-align:center;color:#6b605a}
@@ -46,7 +46,7 @@ footer{margin-top:28px;padding:20px;text-align:center;color:#6b605a}
 }
 
 @media(max-width:480px){
-  .grid{grid-template-columns:repeat(1,1fr)}
+  .grid{grid-template-columns:1fr}
   nav{display:none}
 }
 
