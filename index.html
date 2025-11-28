@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Cookies Shop — Prototype</title>
+  <title>RinErin Cookies — Prototype</title>
 
   <!-- Link to CSS -->
   <link rel="stylesheet" href="style.css">
@@ -24,18 +24,16 @@
   </header>
 
   <!-- HERO -->
-  <section class="hero" id="home">
+  <div class="hero">
     <div class="left">
       <h1>Homemade Cookies & Treats — Freshly Baked</h1>
       <p>Order from our selection of 8 signature cookie packs — perfect for gifts, events, or a sweet treat at home.</p>
       <div class="cta"><button class="btn" onclick="scrollToSection('products')">Shop Now</button></div>
     </div>
-    <div class="right" style="width:360px;">
-      <!-- changed to safe filename hero-photo.jpg -->
-      <img src="hero-photo.jpg" alt="cookies-collage" style="width:100%;border-radius:10px;object-fit:cover;height:200px">
-      <div style="margin-top:8px;text-align:center" class="muted">Hero Image</div>
+    <div class="right">
+      <img class="thumb hero-img" src="mom.jpeg" alt="Hero Image"> 
     </div>
-  </section>
+  </div>
 
   <!-- PRODUCTS -->
   <section id="products" style="margin-top:20px">
@@ -115,16 +113,11 @@
           <div id="orders-list" class="muted">No orders yet</div>
         </div>
       </div>
-      <!-- Only showing the updated admin orders section, rest of file remains the same -->
-         <div id="orders" style="margin-top:12px;background:white;padding:12px;border-radius:10px">
-           <h3>Orders</h3>
-            <div id="orders-list" class="muted">No orders yet</div>
-        </div>
     </div>
   </section>
 
   <footer>
-    Demo prototype • Contact: 016-2220482
+    RinErin Cookies • Contact: 016-2220482
   </footer>
 </div>
 
