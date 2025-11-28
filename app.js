@@ -69,7 +69,7 @@ const products = [
     price: 25,
     qty: 20,
     desc: "Unique and buttery.",
-    img: "Bright Eyed Susan.jpg"
+    img: "bright-eyed-susan.jpg"
   }
 ];
 
