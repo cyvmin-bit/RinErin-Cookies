@@ -1,18 +1,20 @@
 const products = [
-  { id:1, slug:"biskut-mazola", name:"Biskut Mazola", price:25, qty:25, desc:"Traditional Biskut Mazola — crunchy and rich.", img:"Biskut Mazola.jpg"},
-  { id:2, slug:"cornflakes-cookies", name:"Cornflakes Cookies", price:25, qty:33, desc:"Crunchy and sweet.", img:"Cornflakes Cookies.jpg"},
-  { id:3, slug:"chocolate-chips", name:"Chocolate Chips", price:25, qty:20, desc:"Classic chocolate chip cookies.", img:"Chocolate Chips.jpg"},
-  { id:4, slug:"london-almond", name:"London Almond", price:28, qty:30, desc:"Premium almond cookies.", img:"London Almond.jpg"},
-  { id:5, slug:"red-velvet", name:"Red Velvet", price:28, qty:28, desc:"Soft red velvet cookies.", img:"Red Velvet.jpg"},
-  { id:6, slug:"suji-badam", name:"Suji Badam", price:20, qty:40, desc:"Traditional suji almond cookies.", img:"Suji Badam.jpg"},
-  { id:7, slug:"tart-nenas", name:"Tart Nenas", price:22, qty:50, desc:"Pineapple tart cookies.", img:"Tart Nenas.jpg"},
-  { id:8, slug:"bright-eyed-susan", name:"Bright Eyed Susan", price:25, qty:20, desc:"Unique and buttery.", img:"Bright Eyed Susan.jpg"}
+  { id:1, name:"Biskut Mazola", price:25, qty:25, desc:"Traditional Biskut Mazola — crunchy and rich.", img:"images/biskut-mazola.jpg"},
+  { id:2, name:"Cornflakes Cookies", price:25, qty:33, desc:"Crunchy and sweet.", img:"images/cornflakes.jpg"},
+  { id:3, name:"Chocolate Chips", price:25, qty:20, desc:"Classic chocolate chip cookies.", img:"images/chocolate-chips.jpg"},
+  { id:4, name:"London Almond", price:28, qty:30, desc:"Premium almond cookies.", img:"images/london-almond.jpg"},
+  { id:5, name:"Red Velvet", price:28, qty:28, desc:"Soft red velvet cookies.", img:"images/red-velvet.jpg"},
+  { id:6, name:"Suji Badam", price:20, qty:40, desc:"Traditional suji almond cookies.", img:"images/suji-badam.jpg"},
+  { id:7, name:"Tart Nenas", price:22, qty:50, desc:"Pineapple tart cookies.", img:"images/tart-nenas.jpg"},
+  { id:8, name:"Bright Eyed Susan", price:25, qty:20, desc:"Unique and buttery.", img:"images/bright-eyed-susan.jpg"}
 ];
 
+// Smooth scroll
 function scrollToSection(id){
   document.getElementById(id).scrollIntoView({behavior:'smooth'});
 }
 
+// Render product grid
 function renderProducts(){
   document.getElementById('product-grid').innerHTML =
     products.map(p=>`
@@ -31,6 +33,7 @@ function renderProducts(){
     `).join('');
 }
 
+// View product detail
 function viewProduct(id){
   const p=products.find(x=>x.id===id);
   document.getElementById('detail-area').style.display='block';
@@ -49,9 +52,11 @@ function viewProduct(id){
     </div>`;
 }
 
+// Cart helpers
 function getCart(){ return JSON.parse(localStorage.getItem('cart')||'[]') }
 function saveCart(c){ localStorage.setItem('cart',JSON.stringify(c)) }
 
+// Add to cart
 function addToCart(id){
   const p=products.find(x=>x.id===id);
   const c=getCart();
@@ -62,6 +67,7 @@ function addToCart(id){
   alert('Added to cart');
 }
 
+// Render cart
 function renderCart(){
   const c=getCart();
   const el=document.getElementById('cart-list');
@@ -102,6 +108,7 @@ function removeItem(i){
   renderCart();
 }
 
+// Checkout
 function goToCheckout(){
   document.getElementById('checkout').style.display='block';
   renderOrderSummary();
@@ -124,6 +131,7 @@ function renderOrderSummary(){
       </div>`;
 }
 
+// Payment simulation
 function simulatePayment(){
   const f=document.getElementById('checkout-form');
   if(!f.checkValidity()) return alert('Fill all fields');
@@ -150,6 +158,7 @@ function simulatePayment(){
   renderCart();
 }
 
+// Admin orders
 function renderOrders(){
   const o=JSON.parse(localStorage.getItem('orders')||'[]');
   const el=document.getElementById('orders-list');
@@ -166,6 +175,7 @@ function renderOrders(){
   `).join('');
 }
 
+// Add product (Admin)
 document.addEventListener('submit',e=>{
   if(e.target.id==='admin-add-form'){
     e.preventDefault();
@@ -176,7 +186,7 @@ document.addEventListener('submit',e=>{
       price:Number(f.price.value),
       qty:Number(f.qty.value),
       desc:f.desc.value,
-      img:f.img.value || 'default.jpg'
+      img:"images/" + (f.img.value || 'default.jpg')
     };
     products.push(obj);
     renderProducts();
