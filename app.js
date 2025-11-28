@@ -220,7 +220,7 @@ function renderOrders(){
  const o=JSON.parse(localStorage.getItem('orders')||'[]');
  const el=document.getElementById('orders-list');
  if(!o.length){el.innerHTML='No orders yet';return}
- el.innerHTML=o.map((x,idx)=>`
+ el.innerHTML=o.map((x,idx)=>
    <div style='padding:12px;background:#faf6f3;border-radius:8px;margin-bottom:12px' id="order-${x.id}">
      <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px'>
        <div style='font-weight:700'>Order #${x.id}</div>
@@ -235,7 +235,7 @@ function renderOrders(){
      <div style='margin-top:8px'><strong>Items:</strong> ${x.items.map(i=>i.name+' x'+i.qty).join(', ')}</div>
      <div style='margin-top:4px'><strong>Total:</strong> RM ${calculateOrderTotal(x.items).toFixed(2)}</div>
    </div>
- `).join('');
+ ).join('');
 }
 
 function calculateOrderTotal(items) {
